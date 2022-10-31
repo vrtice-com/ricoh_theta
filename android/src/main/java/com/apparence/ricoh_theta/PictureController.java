@@ -3,6 +3,8 @@ package com.apparence.ricoh_theta;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.theta360.sdk.v2.network.HttpConnector;
 import com.theta360.sdk.v2.network.HttpEventListener;
@@ -15,11 +17,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -39,16 +44,40 @@ public class PictureController implements EventChannel.StreamHandler {
     private HttpConnector camera;
 
     public void startLiveView(float fps) {
-        currentFps = fps;
-        previewTimer = new Timer();
-        final Float period = (1 / currentFps) * 1000;
-        previewTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                livePreviewTask = new ShowLiveViewTask();
-                livePreviewTask.execute(ipAddress);
-            }
-        }, 0, period.longValue());
+        try {
+            currentFps = 60;
+            livePreviewTask = new ShowLiveViewTask(fps);
+            AsyncTask<String, String, MJpegInputStream> execute = livePreviewTask.execute(ipAddress);
+            MJpegInputStream mJpegInputStream = execute.get();
+            previewTimer = new Timer();
+            final Float period = (1 / currentFps) * 1000;
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+
+            previewTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    final byte[] data;
+                    try {
+                        data = mJpegInputStream.readMJpegFrameBytes();
+
+                        if (previewStreamSink != null) {
+
+                            // This is your code
+                            Runnable myRunnable = () -> previewStreamSink.success(data);
+                            mainHandler.post(myRunnable);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 0, period.longValue());
+
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void stopLiveView() {
@@ -88,6 +117,13 @@ public class PictureController implements EventChannel.StreamHandler {
     }
 
     private class ShowLiveViewTask extends AsyncTask<String, String, MJpegInputStream> {
+        final float fps;
+        LocalDateTime latestEmittedFrame;
+
+        ShowLiveViewTask(float fps) {
+            this.fps = fps;
+        }
+
         @Override
         protected MJpegInputStream doInBackground(String... ipAddress) {
             MJpegInputStream mjis = null;
@@ -121,33 +157,10 @@ public class PictureController implements EventChannel.StreamHandler {
         protected void onProgressUpdate(String... values) {
         }
 
-        @SuppressLint("WrongThread")
         @Override
         protected void onPostExecute(MJpegInputStream mJpegInputStream) {
-            if (mJpegInputStream != null) {
 
-                try {
-                    final Bitmap data = mJpegInputStream.readMJpegFrame();
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    // FIXME: Do this in an async thread !
-                    data.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-                    byte[] byteArray = stream.toByteArray();
-
-                    // TODO: send "byteArray" to event sink data img
-
-                    if (previewStreamSink != null) {
-                        previewStreamSink.success(byteArray);
-                    }
-
-                    /* FIXME: not working, it crash :/
-                    final CompressTask compressTask = new CompressTask();
-                    compressTask.execute(data);
-                    */
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

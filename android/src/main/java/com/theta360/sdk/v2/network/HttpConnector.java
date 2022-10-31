@@ -155,13 +155,13 @@ public class HttpConnector {
      * Acquire device information
      * @return Device information
      */
-    public DeviceInfo getDeviceInfo() {
+    public DeviceInfo getDeviceInfo() throws JSONException, IOException {
         HttpURLConnection getConnection = createHttpConnection("GET", "/osc/info");
         String responseData;
         DeviceInfo deviceInfo = new DeviceInfo();
         InputStream is = null;
 
-        try {
+
             // send HTTP GET
             // this protocol has no input.
             getConnection.connect();
@@ -180,17 +180,13 @@ public class HttpConnector {
 
             String serialNumber = output.getString("serialNumber");
             deviceInfo.setSerialNumber(serialNumber);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+
+        if (is != null) {
+            try {
+                is.close();
+            } catch (IOException e) {
+                throw e;
             }
         }
 

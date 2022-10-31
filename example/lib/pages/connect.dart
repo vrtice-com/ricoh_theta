@@ -33,6 +33,7 @@ class _ConnectPageState extends State<ConnectPage> {
             ),
             ElevatedButton(
               onPressed: () async {
+                try {
                 if (_formKey.currentState!.validate()) {
                   await _ricohThetaPlugin
                       .setTargetIp(_ipAddressTextController.text);
@@ -43,6 +44,9 @@ class _ConnectPageState extends State<ConnectPage> {
                       content: Text('Impossible to connect to the camera'),
                     ));
                   });
+                }
+                } catch(e) {
+                  print(e.toString());
                 }
               },
               child: const Text('Set target IP'),
