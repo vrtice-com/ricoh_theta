@@ -113,6 +113,44 @@ public class HttpConnector {
         return storageInfo;
     }
 
+    public Double getBatteryLevel() {
+
+        HttpURLConnection postConnection = createHttpConnection("POST", "/osc/state");
+        String responseData;
+        InputStream is = null;
+
+        try {
+            // send HTTP POST
+            OutputStream os = postConnection.getOutputStream();
+            postConnection.connect();
+            os.flush();
+            os.close();
+
+            is = postConnection.getInputStream();
+            responseData = InputStreamToString(is);
+
+            // parse JSON data
+            JSONObject output = new JSONObject(responseData);
+            JSONObject state = output.getJSONObject("state");
+
+            return state.getDouble("batteryLevel");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Acquire device information
      * @return Device information

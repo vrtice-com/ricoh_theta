@@ -119,7 +119,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleAdjustLiveViewFps(MethodCall call, Result result) {
-    float fps = call.argument("fps");
+    float fps = ((Double) call.argument("fps")).floatValue();
     pictureController.setCurrentFps(fps);
     // FIXME: Improve this to not restart the preview, this is too heavy !
     pictureController.resumeLiveView();
@@ -146,7 +146,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleStartLiveView(MethodCall call, Result result) {
-    float fps = call.argument("fps");
+    float fps = ((Double) call.argument("fps")).floatValue();
 
     pictureController.startLiveView(fps);
   }
@@ -171,7 +171,9 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleBatteryLevel(MethodCall call, Result result) {
-    // TODO:
+
+    Double batteryLevel = camera.getBatteryLevel();
+    result.success(batteryLevel);
   }
 
   private void _handleSetTargetIp(MethodCall call, Result result) {
