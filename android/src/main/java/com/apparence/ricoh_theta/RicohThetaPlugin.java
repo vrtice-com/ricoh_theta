@@ -110,12 +110,17 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
   private void _handleGetImage(MethodCall call, Result result) {
     String fileId = call.argument("fileId");
+    String path = call.argument("path");
 
     if (fileId == null) {
       result.error("MISSING_FILE_ID", "file id need to be specified", "");
     }
 
-    storageController.getImageWithFileId(fileId);
+    if (path == null) {
+      result.error("MISSING_PATH", "path need to be specified", "");
+    }
+
+    storageController.getImageWithFileId(fileId, path);
   }
 
   private void _handleAdjustLiveViewFps(MethodCall call, Result result) {
@@ -156,7 +161,9 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleTakePicture(MethodCall call, Result result) {
-    pictureController.takePicture();
+    final String path = call.argument("path");
+
+    pictureController.takePicture(path);
   }
 
   private void _handleStorageInfo(MethodCall call, Result result) {

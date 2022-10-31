@@ -25,11 +25,12 @@ class _ImageViewPageState extends State<ImageViewPage> {
   void initState() {
     super.initState();
 
-    loadImage();
     getApplicationDocumentsDirectory().then((value) {
       setState(() {
         appDocDir = value;
       });
+
+      loadImage();
     });
   }
 

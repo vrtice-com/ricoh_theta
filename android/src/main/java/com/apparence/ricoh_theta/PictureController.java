@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -50,7 +52,9 @@ public class PictureController implements EventChannel.StreamHandler {
     }
 
     public void stopLiveView() {
-        previewTimer.cancel();
+        if (previewTimer != null) {
+            previewTimer.cancel();
+        }
         previewTimer = null;
         if (livePreviewTask != null) {
             livePreviewTask.cancel(true);
@@ -58,12 +62,14 @@ public class PictureController implements EventChannel.StreamHandler {
     }
 
     public void resumeLiveView() {
-        previewTimer.cancel();
+        if (previewTimer != null) {
+            previewTimer.cancel();
+        }
         startLiveView(currentFps);
     }
 
-    public void takePicture() {
-        CaptureListener captureListener = new CaptureListener();
+    public void takePicture(final String path) {
+        CaptureListener captureListener = new CaptureListener(path);
 
         camera.takePicture(captureListener);
     }
@@ -75,7 +81,9 @@ public class PictureController implements EventChannel.StreamHandler {
 
     @Override
     public void onCancel(Object arguments) {
-        this.previewStreamSink.endOfStream();
+        if (this.previewStreamSink != null) {
+            this.previewStreamSink.endOfStream();
+        }
         this.previewStreamSink = null;
     }
 
@@ -170,7 +178,12 @@ public class PictureController implements EventChannel.StreamHandler {
      */
 
     private class CaptureListener implements HttpEventListener {
+        private final String path;
         private String latestCapturedFileId;
+
+        CaptureListener(final String path) {
+            this.path = path;
+        }
 
         @Override
         public void onCheckStatus(boolean newStatus) {
@@ -185,24 +198,27 @@ public class PictureController implements EventChannel.StreamHandler {
         @Override
         public void onCompleted() {
             Bitmap thumbnail = camera.getThumb(latestCapturedFileId);
+            final String fileName;
             if (thumbnail != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] thumbnailImage = baos.toByteArray();
 
                 UUID uuid = UUID.randomUUID();
-                File tempFile = null;
-                try {
-                    tempFile = File.createTempFile(uuid.toString() + "_ricoh_thetha_preview", ".jpg", null);
-                    FileOutputStream fos = new FileOutputStream(tempFile);
+                fileName = uuid.toString() + "_ricoh_thetha_preview.jpg";
+
+                File file = new File(String.format("%s/%s", path, fileName));
+                try (FileOutputStream fos = new FileOutputStream(file)) {
                     fos.write(thumbnailImage);
-                    fos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     this.onError("error when writing file");
                 }
 
-                result.success(tempFile.getPath());
+                Map<String, String> resultData = new HashMap<>();
+                resultData.put("fileName", fileName);
+                resultData.put("fileId", latestCapturedFileId);
+                result.success(resultData);
             }
         }
 

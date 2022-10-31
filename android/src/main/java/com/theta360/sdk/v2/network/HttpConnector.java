@@ -274,11 +274,21 @@ public class HttpConnector {
                     long size = Long.parseLong(entry.getString("size"));
                     imageInfo.setFileSize(size);
 
-                    int width = entry.getInt("width");
-                    imageInfo.setWidth(width);
+                    // FIXME: this is working on the Z1 but not with the X
+                    try {
+                        int width = entry.getInt("width");
+                        imageInfo.setWidth(width);
+                    } catch (JSONException e) {
+                        imageInfo.setWidth(0);
+                    }
 
-                    int height = entry.getInt("height");
-                    imageInfo.setHeight(height);
+                    // FIXME: this is working on the Z1 but not with the X
+                    try {
+                        int height = entry.getInt("height");
+                        imageInfo.setHeight(height);
+                    } catch (JSONException e) {
+                        imageInfo.setHeight(0);
+                    }
 
                     try {
                         entry.getInt("_recordTime");
