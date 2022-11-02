@@ -39,11 +39,11 @@ public class PictureController implements EventChannel.StreamHandler {
     private ShowLiveViewTask livePreviewTask = null;
 
     private Timer previewTimer;
-    private float currentFps;
+    private Integer currentFps;
     private String ipAddress;
     private HttpConnector camera;
 
-    public void startLiveView(float fps) {
+    public void startLiveView(Integer fps) {
             currentFps = 60;
             livePreviewTask = new ShowLiveViewTask();
             livePreviewTask.execute(ipAddress);
@@ -127,7 +127,7 @@ public class PictureController implements EventChannel.StreamHandler {
         @Override
         protected void onPostExecute(MJpegInputStream mJpegInputStream) {
             previewTimer = new Timer();
-            final Float period = (1 / currentFps) * 1000;
+            final Float period = (1 / currentFps.floatValue()) * 1000;
             Handler mainHandler = new Handler(Looper.getMainLooper());
 
             previewTimer.schedule(new TimerTask() {
@@ -202,7 +202,7 @@ public class PictureController implements EventChannel.StreamHandler {
 
     // Setters
 
-    public void setCurrentFps(float fps) {
+    public void setCurrentFps(Integer fps) {
         this.currentFps = fps;
     }
 
