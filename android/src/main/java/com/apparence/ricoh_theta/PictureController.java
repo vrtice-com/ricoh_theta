@@ -1,6 +1,5 @@
 package com.apparence.ricoh_theta;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -17,14 +16,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -40,13 +36,12 @@ public class PictureController implements EventChannel.StreamHandler {
 
     private Timer previewTimer;
     private Integer currentFps;
-    private String ipAddress;
     private HttpConnector camera;
 
     public void startLiveView(Integer fps) {
-            currentFps = 60;
-            livePreviewTask = new ShowLiveViewTask();
-            livePreviewTask.execute(ipAddress);
+        currentFps = 60;
+        livePreviewTask = new ShowLiveViewTask();
+        livePreviewTask.execute();
     }
 
     public void stopLiveView() {
@@ -85,21 +80,16 @@ public class PictureController implements EventChannel.StreamHandler {
         this.previewStreamSink = null;
     }
 
-    private class ShowLiveViewTask extends AsyncTask<String, String, MJpegInputStream> {
+    private class ShowLiveViewTask extends AsyncTask<Void, String, MJpegInputStream> {
 
         @Override
-        protected MJpegInputStream doInBackground(String... ipAddress) {
+        protected MJpegInputStream doInBackground(Void... voids) {
             MJpegInputStream mjis = null;
             final int MAX_RETRY_COUNT = 20;
 
             for (int retryCount = 0; retryCount < MAX_RETRY_COUNT; retryCount++) {
                 try {
-                    HttpConnector localCamera = camera;
-                    if (localCamera == null) {
-                        localCamera = new HttpConnector(ipAddress[0]);
-
-                    }
-                    InputStream is = localCamera.getLivePreview();
+                    InputStream is = camera.getLivePreview();
                     mjis = new MJpegInputStream(is);
                     retryCount = MAX_RETRY_COUNT;
                 } catch (IOException e) {
@@ -204,10 +194,6 @@ public class PictureController implements EventChannel.StreamHandler {
 
     public void setCurrentFps(Integer fps) {
         this.currentFps = fps;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
     }
 
     public void setResult(MethodChannel.Result result) {

@@ -1,26 +1,14 @@
 package com.apparence.ricoh_theta;
 
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
-
+import com.apparence.ricoh_theta.task.LoadPhotoTask;
 import com.theta360.sdk.v2.network.HttpConnector;
-import com.theta360.sdk.v2.network.HttpDownloadListener;
 import com.theta360.sdk.v2.network.HttpEventListener;
-import com.theta360.sdk.v2.network.ImageData;
 import com.theta360.sdk.v2.network.ImageInfo;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -29,17 +17,13 @@ import io.flutter.plugin.common.MethodChannel;
 public class StorageController implements EventChannel.StreamHandler {
     // Flutter stuff
     private MethodChannel.Result result;
-    private EventChannel.EventSink downloadStreamSink;
-
-    // Async tasks
-    private LoadPhotoTask mLoadPhotoTask = null;
+    private LoadPhotoTask loadPhotoTask;
 
     private HttpConnector camera;
-    private String ipAddress;
 
     public void getImageWithFileId(String fileId, String path) {
-        mLoadPhotoTask = new LoadPhotoTask(fileId, path);
-        mLoadPhotoTask.execute();
+        loadPhotoTask = new LoadPhotoTask(camera, fileId, path, result);
+        loadPhotoTask.execute();
     }
 
     public void removeImageWithFileId(String fileId) {
@@ -74,111 +58,15 @@ public class StorageController implements EventChannel.StreamHandler {
 
     @Override
     public void onListen(Object arguments, EventChannel.EventSink events) {
-        this.downloadStreamSink = events;
+        if (loadPhotoTask != null) {
+            loadPhotoTask.setDownloadStreamSink(events);
+        }
     }
 
     @Override
     public void onCancel(Object arguments) {
-        this.downloadStreamSink.endOfStream();
-        this.downloadStreamSink = null;
-    }
-
-    private class LoadPhotoTask extends AsyncTask<Void, Object, ImageData> {
-
-        private String fileId;
-        private String path;
-        private long fileSize;
-        private long receivedDataSize = 0;
-
-        public LoadPhotoTask(String fileId, String path) {
-            this.fileId = fileId;
-            this.path = path;
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected ImageData doInBackground(Void... params) {
-            try {
-                HttpConnector camera = new HttpConnector(ipAddress);
-                ImageData resizedImageData = camera.getImage(fileId, new HttpDownloadListener() {
-                    @Override
-                    public void onTotalSize(long totalSize) {
-                        fileSize = totalSize;
-                    }
-
-                    @Override
-                    public void onDataReceived(int size) {
-                        receivedDataSize += size;
-
-                        if (fileSize != 0) {
-                            int progressPercentage = (int) (receivedDataSize * 100 / fileSize);
-                            publishProgress(progressPercentage);
-                        }
-                    }
-                });
-
-                return resizedImageData;
-
-            } catch (Throwable throwable) {
-                String errorLog = Log.getStackTraceString(throwable);
-                publishProgress(errorLog);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Object... values) {
-
-            for (Object param : values) {
-                if (param instanceof Integer) {
-                    downloadStreamSink.success(((Integer) param).doubleValue() / 100);
-                }
-            }
-        }
-
-        @SuppressLint("WrongThread")
-        @Override
-        protected void onPostExecute(ImageData imageData) {
-            if (imageData != null) {
-
-                byte[] dataObject = imageData.getRawData();
-
-                if (dataObject == null) {
-                    return;
-                }
-
-                Bitmap __bitmap = BitmapFactory.decodeByteArray(dataObject, 0, dataObject.length);
-
-                if (__bitmap != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    __bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] thumbnailImage = baos.toByteArray();
-
-                    UUID uuid = UUID.randomUUID();
-                    final String fileName = String.format("%s_ricoh_thetha_image.jpg", uuid.toString());
-
-                    File file = new File(String.format("%s/%s", path, fileName));
-                    try {
-                        FileOutputStream fos = new FileOutputStream(file);
-                        fos.write(thumbnailImage);
-                        fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        result.error("WRITE_FAILED", "unable to write file", "");
-                    }
-
-                    Map<String, Object> image = new HashMap<>();
-                    image.put("fileName", fileName);
-                    image.put("width", (double) __bitmap.getWidth());
-                    image.put("height", (double) __bitmap.getHeight());
-                    image.put("size", file.length());
-
-                    result.success(image);
-                }
-            }
+        if (loadPhotoTask != null) {
+            loadPhotoTask.dispose();
         }
     }
 
@@ -203,10 +91,6 @@ public class StorageController implements EventChannel.StreamHandler {
     }
 
     // Setters
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
 
     public void setResult(MethodChannel.Result result) {
         this.result = result;

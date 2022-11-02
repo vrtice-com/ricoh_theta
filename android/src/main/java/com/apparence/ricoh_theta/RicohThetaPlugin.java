@@ -111,10 +111,12 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (fileId == null) {
       result.error("MISSING_FILE_ID", "file id need to be specified", "");
+      return;
     }
 
     if (path == null) {
       result.error("MISSING_PATH", "path need to be specified", "");
+      return;
     }
 
     storageController.getImageWithFileId(fileId, path);
@@ -194,8 +196,6 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     pictureController.setCamera(camera);
     storageController.setCamera(camera);
-    pictureController.setIpAddress(ipAddress);
-    storageController.setIpAddress(ipAddress);
 
     result.success(null);
   }
@@ -209,5 +209,4 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
   }
-
 }
