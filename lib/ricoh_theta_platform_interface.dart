@@ -32,7 +32,7 @@ abstract class RicohThetaPlatform extends PlatformInterface {
     throw UnimplementedError('update() has not been implemented.');
   }
 
-  Future startLiveView(num fps) {
+  Future startLiveView(int fps) {
     throw UnimplementedError('startLiveView() has not been implemented.');
   }
 
@@ -90,7 +90,7 @@ abstract class RicohThetaPlatform extends PlatformInterface {
     throw UnimplementedError('listenCameraImages() has not been implemented.');
   }
 
-  Future adjustLiveViewFps(num fps) {
+  Future adjustLiveViewFps(int fps) {
     throw UnimplementedError('adjustLiveViewFps() has not been implemented.');
   }
 }

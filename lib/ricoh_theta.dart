@@ -21,7 +21,7 @@ class RicohTheta {
   }
 
   /// Start capture of live view
-  Future startLiveView({num fps = 30}) async {
+  Future startLiveView({int fps = 30}) async {
     return RicohThetaPlatform.instance.startLiveView(fps);
   }
 
@@ -101,7 +101,7 @@ class RicohTheta {
   /// - 40 signifies 40 frames per second
   /// [...]
   /// - 0 signifies unlimited frames
-  Future adjustLiveViewFps(num fps) {
+  Future adjustLiveViewFps(int fps) {
     return RicohThetaPlatform.instance.adjustLiveViewFps(fps);
   }
 }

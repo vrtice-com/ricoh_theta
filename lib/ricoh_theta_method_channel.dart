@@ -45,7 +45,7 @@ class MethodChannelRicohTheta extends RicohThetaPlatform {
   }
 
   @override
-  Future startLiveView(num fps) {
+  Future startLiveView(int fps) {
     return methodChannel.invokeMethod<String>('startLiveView', {
       'fps': fps,
     });
@@ -78,7 +78,8 @@ class MethodChannelRicohTheta extends RicohThetaPlatform {
 
   @override
   Future<PictureTakeInfo?> takePicture(String path) async {
-    final data = await methodChannel.invokeMapMethod<String, String>('takePicture', {
+    final data =
+        await methodChannel.invokeMapMethod<String, String>('takePicture', {
       'path': path,
     });
 
@@ -103,7 +104,7 @@ class MethodChannelRicohTheta extends RicohThetaPlatform {
   }
 
   @override
-  Future adjustLiveViewFps(num fps) {
+  Future adjustLiveViewFps(int fps) {
     return methodChannel.invokeMethod<String>('adjustLiveViewFps', {
       'fps': fps,
     });
@@ -133,7 +134,8 @@ class MethodChannelRicohTheta extends RicohThetaPlatform {
 
   @override
   Future<RicohImage?> getImage(String fileId, String path) async {
-    final result = await methodChannel.invokeMapMethod<String, dynamic>('getImage', {
+    final result =
+        await methodChannel.invokeMapMethod<String, dynamic>('getImage', {
       'fileId': fileId,
       'path': path,
     });

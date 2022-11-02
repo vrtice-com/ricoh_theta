@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _ricohThetaPlugin = RicohTheta();
   List<ImageInfoes> _imageInfoes = [];
-  double _livePreviewFPS = 15.0;
+  int _livePreviewFPS = 15;
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +114,10 @@ class _HomePageState extends State<HomePage> {
                 max: 60,
                 divisions: 60,
                 label: _livePreviewFPS.round().toString(),
-                value: _livePreviewFPS,
+                value: _livePreviewFPS.toDouble(),
                 onChanged: (value) {
                   setState(() {
-                    _livePreviewFPS = value;
+                    _livePreviewFPS = value.toInt();
                   });
                   _ricohThetaPlugin.adjustLiveViewFps(_livePreviewFPS);
                 },

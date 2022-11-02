@@ -121,10 +121,15 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleAdjustLiveViewFps(MethodCall call, Result result) {
-    float fps = ((Double) call.argument("fps")).floatValue();
-    pictureController.setCurrentFps(fps);
-    // FIXME: Improve this to not restart the preview, this is too heavy !
-    pictureController.resumeLiveView();
+    final Integer fps = call.argument("fps");
+
+    if (fps == null) {
+      result.error("MISSING_FPS", "fps need to be specified", "");
+    } else {
+      pictureController.setCurrentFps(fps);
+      // FIXME: Improve this to not restart the preview, this is too heavy !
+      pictureController.resumeLiveView();
+    }
   }
 
   private void _handleGetImageInfoes(MethodCall call, Result result) {
@@ -148,9 +153,14 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleStartLiveView(MethodCall call, Result result) {
-    float fps = ((Double) call.argument("fps")).floatValue();
+    final Integer fps = call.argument("fps");
 
-    pictureController.startLiveView(fps);
+    if (fps == null) {
+      result.error("MISSING_FPS", "fps need to be specified", "");
+    } else {
+      pictureController.startLiveView(fps);
+    }
+
   }
 
   private void _handleDisconnect(MethodCall call, Result result) {
