@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class RicohImage {
   final String fileName;
   final double width;

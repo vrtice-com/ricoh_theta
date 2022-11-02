@@ -129,16 +129,16 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () async {
                       Directory appDocDir =
                           await getApplicationDocumentsDirectory();
-                      final thumbnailFileName =
+                      final takenPhotoInfo =
                           await _ricohThetaPlugin.takePicture(appDocDir.path);
-                      if (thumbnailFileName == null) {
+                      if (takenPhotoInfo == null) {
                         return;
                       }
 
                       await showResultDialog(
                         context,
                         child: Image.file(
-                          File('${appDocDir.path}/$thumbnailFileName'),
+                          File('${appDocDir.path}/${takenPhotoInfo.fileName}'),
                         ),
                       );
 

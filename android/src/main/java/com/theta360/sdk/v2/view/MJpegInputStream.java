@@ -105,4 +105,27 @@ public class MJpegInputStream extends DataInputStream {
 
         return BitmapFactory.decodeStream(new ByteArrayInputStream(frameData));
     }
+
+    public byte[] readMJpegFrameBytes() throws IOException {
+        mark(FRAME_MAX_LENGTH);
+        int headerLength = getStartOfSequence(this, SOI_MARKER);
+        int contentLength;
+        reset();
+
+        byte[] headerData = new byte[headerLength];
+        readFully(headerData);
+        try {
+            contentLength = parseContentLength(headerData);
+        } catch (NumberFormatException e) {
+            e.getStackTrace();
+            contentLength = getEndOfSequence(this, EOF_MARKER);
+        }
+        reset();
+
+        byte[] frameData = new byte[contentLength];
+        skipBytes(headerLength);
+        readFully(frameData);
+
+        return frameData;
+    }
 }

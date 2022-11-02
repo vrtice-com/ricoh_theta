@@ -7,6 +7,8 @@ public class StorageInfo {
     int mRemainingPictures = 0;
     long mRemainingSpace = 0;
     long mTotalSpace = 0;
+    long width = 0;
+    long height = 0;
 
     /**
      * Acquire remaining number of images that can be shot
@@ -54,5 +56,21 @@ public class StorageInfo {
      */
     public void setMaxCapacity(long totalSpace) {
         mTotalSpace = totalSpace;
+    }
+
+    public long getWidth() {
+        return width;
+    }
+
+    public void setWidth(long width) {
+        this.width = width;
+    }
+
+    public long getHeight() {
+        return height;
+    }
+
+    public void setHeight(long height) {
+        this.height = height;
     }
 }

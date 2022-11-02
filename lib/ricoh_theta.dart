@@ -54,7 +54,7 @@ class RicohTheta {
   /// Get battery level from device
   Future<num> batteryLevel() async {
     final battery = await RicohThetaPlatform.instance.batteryLevel();
-    return (battery ?? 0) * 100;
+    return ((battery ?? 0) * 100).floor();
   }
 
   /// Returns the current model information like model, firmware & serial number.

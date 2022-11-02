@@ -37,8 +37,8 @@ public class StorageController implements EventChannel.StreamHandler {
     private HttpConnector camera;
     private String ipAddress;
 
-    public void getImageWithFileId(String fileId) {
-        mLoadPhotoTask = new LoadPhotoTask(fileId);
+    public void getImageWithFileId(String fileId, String path) {
+        mLoadPhotoTask = new LoadPhotoTask(fileId, path);
         mLoadPhotoTask.execute();
     }
 
@@ -86,11 +86,13 @@ public class StorageController implements EventChannel.StreamHandler {
     private class LoadPhotoTask extends AsyncTask<Void, Object, ImageData> {
 
         private String fileId;
+        private String path;
         private long fileSize;
         private long receivedDataSize = 0;
 
-        public LoadPhotoTask(String fileId) {
+        public LoadPhotoTask(String fileId, String path) {
             this.fileId = fileId;
+            this.path = path;
         }
 
         @Override
@@ -150,21 +152,17 @@ public class StorageController implements EventChannel.StreamHandler {
 
                 Bitmap __bitmap = BitmapFactory.decodeByteArray(dataObject, 0, dataObject.length);
 
-
-                Double yaw = imageData.getYaw();
-                Double pitch = imageData.getPitch();
-                Double roll = imageData.getRoll();
-
                 if (__bitmap != null) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     __bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] thumbnailImage = baos.toByteArray();
 
                     UUID uuid = UUID.randomUUID();
-                    File tempFile = null;
+                    final String fileName = String.format("%s_ricoh_thetha_image.jpg", uuid.toString());
+
+                    File file = new File(String.format("%s/%s", path, fileName));
                     try {
-                        tempFile = File.createTempFile(uuid.toString() + "_ricoh_thetha_image", ".jpg", null);
-                        FileOutputStream fos = new FileOutputStream(tempFile);
+                        FileOutputStream fos = new FileOutputStream(file);
                         fos.write(thumbnailImage);
                         fos.close();
                     } catch (IOException e) {
@@ -172,7 +170,13 @@ public class StorageController implements EventChannel.StreamHandler {
                         result.error("WRITE_FAILED", "unable to write file", "");
                     }
 
-                    result.success(tempFile.getPath());
+                    Map<String, Object> image = new HashMap<>();
+                    image.put("fileName", fileName);
+                    image.put("width", (double) __bitmap.getWidth());
+                    image.put("height", (double) __bitmap.getHeight());
+                    image.put("size", file.length());
+
+                    result.success(image);
                 }
             }
         }

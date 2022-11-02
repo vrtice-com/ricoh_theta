@@ -4,13 +4,10 @@ import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 
-import com.theta360.sdk.v2.network.DeviceInfo;
+import com.apparence.ricoh_theta.task.BatteryTask;
+import com.apparence.ricoh_theta.task.DeviceInfoTask;
+import com.apparence.ricoh_theta.task.StorageInfoTask;
 import com.theta360.sdk.v2.network.HttpConnector;
-import com.theta360.sdk.v2.network.HttpEventListener;
-import com.theta360.sdk.v2.network.StorageInfo;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
@@ -110,16 +107,21 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
   private void _handleGetImage(MethodCall call, Result result) {
     String fileId = call.argument("fileId");
+    String path = call.argument("path");
 
     if (fileId == null) {
       result.error("MISSING_FILE_ID", "file id need to be specified", "");
     }
 
-    storageController.getImageWithFileId(fileId);
+    if (path == null) {
+      result.error("MISSING_PATH", "path need to be specified", "");
+    }
+
+    storageController.getImageWithFileId(fileId, path);
   }
 
   private void _handleAdjustLiveViewFps(MethodCall call, Result result) {
-    float fps = call.argument("fps");
+    float fps = ((Double) call.argument("fps")).floatValue();
     pictureController.setCurrentFps(fps);
     // FIXME: Improve this to not restart the preview, this is too heavy !
     pictureController.resumeLiveView();
@@ -146,7 +148,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleStartLiveView(MethodCall call, Result result) {
-    float fps = call.argument("fps");
+    float fps = ((Double) call.argument("fps")).floatValue();
 
     pictureController.startLiveView(fps);
   }
@@ -156,22 +158,19 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleTakePicture(MethodCall call, Result result) {
-    pictureController.takePicture();
+    final String path = call.argument("path");
+
+    pictureController.takePicture(path);
   }
 
   private void _handleStorageInfo(MethodCall call, Result result) {
-    StorageInfo storageInfo = camera.getStorageInfo();
-    Map<String, Object> resultData = new HashMap<>();
-    resultData.put("maxCapacity", storageInfo.getMaxCapacity());
-    resultData.put("freeSpaceInBytes", storageInfo.getFreeSpaceInBytes());
-    resultData.put("freeSpaceInImages", storageInfo.getFreeSpaceInImages());
-    resultData.put("imageWidth", null);   // TODO:
-    resultData.put("imageHeight", null);  // TODO:
-    result.success(resultData);
+    final StorageInfoTask storageInfoTask = new StorageInfoTask(camera, result);
+    storageInfoTask.execute();
   }
 
   private void _handleBatteryLevel(MethodCall call, Result result) {
-    // TODO:
+    final BatteryTask batteryTask = new BatteryTask(camera, result);
+    batteryTask.execute();
   }
 
   private void _handleSetTargetIp(MethodCall call, Result result) {
@@ -192,16 +191,13 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleDeviceInfo(MethodCall call, Result result) {
-    DeviceInfo deviceInfo = camera.getDeviceInfo();
-    Map<String, String> resultData = new HashMap<>();
-    resultData.put("model", deviceInfo.getModel());
-    resultData.put("firmwareVersion", deviceInfo.getDeviceVersion());
-    resultData.put("serialNumber", deviceInfo.getSerialNumber());
-    result.success(resultData);
+      final DeviceInfoTask deviceInfoTask = new DeviceInfoTask(camera, result);
+      deviceInfoTask.execute();
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
   }
+
 }
