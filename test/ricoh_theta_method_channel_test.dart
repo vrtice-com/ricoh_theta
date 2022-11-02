@@ -24,10 +24,7 @@ void main() {
       } else if (methodCall.method == 'setTargetIp') {
         return null;
       } else if (methodCall.method == 'takePicture') {
-        return {
-          'fileId': '1234567890',
-          'path': '/tmp/image.jpg'
-        };
+        return {'fileId': '1234567890', 'fileName': '/tmp/image.jpg'};
       } else if (methodCall.method == 'getImageInfoes') {
         return [
           {
@@ -57,7 +54,7 @@ void main() {
       } else if (methodCall.method == 'getImage') {
         return {
           'fileId': '1234567890',
-          'path': '/tmp/image.jpg',
+          'fileName': '/tmp/image.jpg',
           'height': 1080.0,
           'width': 1920.0,
           'size': 2003,

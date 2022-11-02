@@ -53,7 +53,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Max capacity: ${storageInfo.maxCapacity}'),
-                      Text('Free space (bytes): ${storageInfo.freeSpaceInBytes}'),
+                      Text(
+                          'Free space (bytes): ${storageInfo.freeSpaceInBytes}'),
                       Text(
                           'Free space (images): ${storageInfo.freeSpaceInImages}'),
                       Text('Image height: ${storageInfo.imageHeight}'),

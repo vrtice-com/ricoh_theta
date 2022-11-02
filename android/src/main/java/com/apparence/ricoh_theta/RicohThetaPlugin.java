@@ -4,16 +4,10 @@ import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 
-import com.theta360.sdk.v2.network.DeviceInfo;
+import com.apparence.ricoh_theta.task.BatteryTask;
+import com.apparence.ricoh_theta.task.DeviceInfoTask;
+import com.apparence.ricoh_theta.task.StorageInfoTask;
 import com.theta360.sdk.v2.network.HttpConnector;
-import com.theta360.sdk.v2.network.HttpEventListener;
-import com.theta360.sdk.v2.network.StorageInfo;
-
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
@@ -170,20 +164,13 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleStorageInfo(MethodCall call, Result result) {
-    StorageInfo storageInfo = camera.getStorageInfo();
-    Map<String, Object> resultData = new HashMap<>();
-    resultData.put("maxCapacity", storageInfo.getMaxCapacity());
-    resultData.put("freeSpaceInBytes", storageInfo.getFreeSpaceInBytes());
-    resultData.put("freeSpaceInImages", storageInfo.getFreeSpaceInImages());
-    resultData.put("imageWidth", null);   // TODO:
-    resultData.put("imageHeight", null);  // TODO:
-    result.success(resultData);
+    final StorageInfoTask storageInfoTask = new StorageInfoTask(camera, result);
+    storageInfoTask.execute();
   }
 
   private void _handleBatteryLevel(MethodCall call, Result result) {
-
-    Double batteryLevel = camera.getBatteryLevel();
-    result.success(batteryLevel);
+    final BatteryTask batteryTask = new BatteryTask(camera, result);
+    batteryTask.execute();
   }
 
   private void _handleSetTargetIp(MethodCall call, Result result) {
@@ -204,22 +191,13 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
   }
 
   private void _handleDeviceInfo(MethodCall call, Result result) {
-    try {
-      DeviceInfo deviceInfo = camera.getDeviceInfo();
-      Map<String, String> resultData = new HashMap<>();
-      resultData.put("model", deviceInfo.getModel());
-      resultData.put("firmwareVersion", deviceInfo.getDeviceVersion());
-      resultData.put("serialNumber", deviceInfo.getSerialNumber());
-      result.success(resultData);
-    } catch (IOException e) {
-      System.out.println("PLS");
-    } catch (JSONException e) {
-      System.out.println("PLS");
-    }
+      final DeviceInfoTask deviceInfoTask = new DeviceInfoTask(camera, result);
+      deviceInfoTask.execute();
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
   }
+
 }

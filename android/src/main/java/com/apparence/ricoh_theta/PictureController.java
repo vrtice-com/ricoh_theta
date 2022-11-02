@@ -44,40 +44,9 @@ public class PictureController implements EventChannel.StreamHandler {
     private HttpConnector camera;
 
     public void startLiveView(float fps) {
-        try {
             currentFps = 60;
-            livePreviewTask = new ShowLiveViewTask(fps);
-            AsyncTask<String, String, MJpegInputStream> execute = livePreviewTask.execute(ipAddress);
-            MJpegInputStream mJpegInputStream = execute.get();
-            previewTimer = new Timer();
-            final Float period = (1 / currentFps) * 1000;
-            Handler mainHandler = new Handler(Looper.getMainLooper());
-
-            previewTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    final byte[] data;
-                    try {
-                        data = mJpegInputStream.readMJpegFrameBytes();
-
-                        if (previewStreamSink != null) {
-
-                            // This is your code
-                            Runnable myRunnable = () -> previewStreamSink.success(data);
-                            mainHandler.post(myRunnable);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, 0, period.longValue());
-
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            livePreviewTask = new ShowLiveViewTask();
+            livePreviewTask.execute(ipAddress);
     }
 
     public void stopLiveView() {
@@ -117,12 +86,6 @@ public class PictureController implements EventChannel.StreamHandler {
     }
 
     private class ShowLiveViewTask extends AsyncTask<String, String, MJpegInputStream> {
-        final float fps;
-        LocalDateTime latestEmittedFrame;
-
-        ShowLiveViewTask(float fps) {
-            this.fps = fps;
-        }
 
         @Override
         protected MJpegInputStream doInBackground(String... ipAddress) {
@@ -131,8 +94,12 @@ public class PictureController implements EventChannel.StreamHandler {
 
             for (int retryCount = 0; retryCount < MAX_RETRY_COUNT; retryCount++) {
                 try {
-                    HttpConnector camera = new HttpConnector(ipAddress[0]);
-                    InputStream is = camera.getLivePreview();
+                    HttpConnector localCamera = camera;
+                    if (localCamera == null) {
+                        localCamera = new HttpConnector(ipAddress[0]);
+
+                    }
+                    InputStream is = localCamera.getLivePreview();
                     mjis = new MJpegInputStream(is);
                     retryCount = MAX_RETRY_COUNT;
                 } catch (IOException e) {
@@ -159,36 +126,28 @@ public class PictureController implements EventChannel.StreamHandler {
 
         @Override
         protected void onPostExecute(MJpegInputStream mJpegInputStream) {
+            previewTimer = new Timer();
+            final Float period = (1 / currentFps) * 1000;
+            Handler mainHandler = new Handler(Looper.getMainLooper());
 
+            previewTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    final byte[] data;
+                    try {
+                        data = mJpegInputStream.readMJpegFrameBytes();
 
+                        if (previewStreamSink != null) {
+                            Runnable myRunnable = () -> previewStreamSink.success(data);
+                            mainHandler.post(myRunnable);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 0, period.longValue());
         }
     }
-
-    /*
-    private class CompressTask extends AsyncTask<Bitmap, Integer, byte[]> {
-        protected byte[] doInBackground(Bitmap... data) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            // FIXME: Do in an async thread !
-            data[0].compress(Bitmap.CompressFormat.JPEG, 70, stream);
-            byte[] byteArray = stream.toByteArray();
-
-            // TODO: send "byteArray" to event sink data img
-
-            if (previewStreamSink != null) {
-                previewStreamSink.success(byteArray);
-            }
-            return byteArray;
-        }
-
-        protected void onProgressUpdate(Integer... progress) {
-
-        }
-
-        protected void onPostExecute(byte[] result) {
-
-        }
-    }
-     */
 
     private class CaptureListener implements HttpEventListener {
         private final String path;

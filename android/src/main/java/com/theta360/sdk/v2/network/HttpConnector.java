@@ -41,6 +41,7 @@ public class HttpConnector {
 
     /**
      * Constructor
+     *
      * @param cameraIpAddress IP address of connection destination
      */
     public HttpConnector(String cameraIpAddress) {
@@ -50,9 +51,10 @@ public class HttpConnector {
 
     /**
      * Acquire storage information of device
+     *
      * @return Storage information
      */
-    public StorageInfo getStorageInfo() {
+    public StorageInfo getStorageInfo() throws JSONException, IOException {
 
         HttpURLConnection postConnection = createHttpConnection("POST", "/osc/commands/execute");
         JSONObject input = new JSONObject();
@@ -60,99 +62,89 @@ public class HttpConnector {
         StorageInfo storageInfo = new StorageInfo();
         InputStream is = null;
 
-        try {
-            // send HTTP POST
-            input.put("name", "camera.getOptions");
-            JSONObject parameters = new JSONObject();
-            JSONArray optionNames = new JSONArray();
-            optionNames.put("remainingPictures");
-            optionNames.put("remainingSpace");
-            optionNames.put("totalSpace");
-            parameters.put("optionNames", optionNames);
-            input.put("parameters", parameters);
+        // send HTTP POST
+        input.put("name", "camera.getOptions");
+        JSONObject parameters = new JSONObject();
+        JSONArray optionNames = new JSONArray();
+        optionNames.put("remainingPictures");
+        optionNames.put("remainingSpace");
+        optionNames.put("totalSpace");
+        optionNames.put("fileFormat");
+        parameters.put("optionNames", optionNames);
+        input.put("parameters", parameters);
 
-            OutputStream os = postConnection.getOutputStream();
-            os.write(input.toString().getBytes());
-            postConnection.connect();
-            os.flush();
-            os.close();
+        OutputStream os = postConnection.getOutputStream();
+        os.write(input.toString().getBytes());
+        postConnection.connect();
+        os.flush();
+        os.close();
 
-            is = postConnection.getInputStream();
-            responseData = InputStreamToString(is);
+        is = postConnection.getInputStream();
+        responseData = InputStreamToString(is);
 
-            // parse JSON data
-            JSONObject output = new JSONObject(responseData);
-            String status = output.getString("state");
+        // parse JSON data
+        JSONObject output = new JSONObject(responseData);
+        String status = output.getString("state");
 
-            if (status.equals("done")) {
-                JSONObject results = output.getJSONObject("results");
-                JSONObject options = results.getJSONObject("options");
-                int remainingPictures = options.getInt("remainingPictures");
-                storageInfo.setFreeSpaceInImages(remainingPictures);
+        if (status.equals("done")) {
+            JSONObject results = output.getJSONObject("results");
+            JSONObject options = results.getJSONObject("options");
+            int remainingPictures = options.getInt("remainingPictures");
+            storageInfo.setFreeSpaceInImages(remainingPictures);
 
-                long remainingSpace = options.getLong("remainingSpace");
-                storageInfo.setFreeSpaceInBytes(remainingSpace);
+            long remainingSpace = options.getLong("remainingSpace");
+            storageInfo.setFreeSpaceInBytes(remainingSpace);
 
-                long totalSpace = options.getLong("totalSpace");
-                storageInfo.setMaxCapacity(totalSpace);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            long totalSpace = options.getLong("totalSpace");
+            storageInfo.setMaxCapacity(totalSpace);
+
+            if (options.has("fileFormat")) {
+                final JSONObject fileFormat = options.getJSONObject("fileFormat");
+
+                if (fileFormat.has("width")) {
+                    final long width = fileFormat.getLong("width");
+                    storageInfo.setWidth(width);
+                }
+
+                if (fileFormat.has("height")) {
+                    final long height = fileFormat.getLong("height");
+                    storageInfo.setHeight(height);
                 }
             }
-        }
 
+        }
+        is.close();
         return storageInfo;
     }
 
-    public Double getBatteryLevel() {
+    public Double getBatteryLevel() throws JSONException, IOException {
 
         HttpURLConnection postConnection = createHttpConnection("POST", "/osc/state");
         String responseData;
         InputStream is = null;
 
-        try {
-            // send HTTP POST
-            OutputStream os = postConnection.getOutputStream();
-            postConnection.connect();
-            os.flush();
-            os.close();
+        // send HTTP POST
+        OutputStream os = postConnection.getOutputStream();
+        postConnection.connect();
+        os.flush();
+        os.close();
 
-            is = postConnection.getInputStream();
-            responseData = InputStreamToString(is);
+        is = postConnection.getInputStream();
+        responseData = InputStreamToString(is);
 
-            // parse JSON data
-            JSONObject output = new JSONObject(responseData);
-            JSONObject state = output.getJSONObject("state");
+        // parse JSON data
+        JSONObject output = new JSONObject(responseData);
+        JSONObject state = output.getJSONObject("state");
 
-            return state.getDouble("batteryLevel");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
-        return null;
+        is.close();
+
+        return state.getDouble("batteryLevel");
     }
 
     /**
      * Acquire device information
+     *
      * @return Device information
      */
     public DeviceInfo getDeviceInfo() throws JSONException, IOException {
@@ -162,24 +154,24 @@ public class HttpConnector {
         InputStream is = null;
 
 
-            // send HTTP GET
-            // this protocol has no input.
-            getConnection.connect();
+        // send HTTP GET
+        // this protocol has no input.
+        getConnection.connect();
 
-            is = getConnection.getInputStream();
-            responseData = InputStreamToString(is);
+        is = getConnection.getInputStream();
+        responseData = InputStreamToString(is);
 
-            // parse JSON data
-            JSONObject output = new JSONObject(responseData);
+        // parse JSON data
+        JSONObject output = new JSONObject(responseData);
 
-            String model = output.getString("model");
-            deviceInfo.setModel(model);
+        String model = output.getString("model");
+        deviceInfo.setModel(model);
 
-            String version = output.getString("firmwareVersion");
-            deviceInfo.setDeviceVersion(version);
+        String version = output.getString("firmwareVersion");
+        deviceInfo.setDeviceVersion(version);
 
-            String serialNumber = output.getString("serialNumber");
-            deviceInfo.setSerialNumber(serialNumber);
+        String serialNumber = output.getString("serialNumber");
+        deviceInfo.setSerialNumber(serialNumber);
 
 
         if (is != null) {
@@ -195,6 +187,7 @@ public class HttpConnector {
 
     /**
      * Acquire list of media files on device
+     *
      * @return Media file list
      */
     public ArrayList<ImageInfo> getList() {
@@ -213,8 +206,9 @@ public class HttpConnector {
 
     /**
      * Acquire media file list (limited number of items)
+     *
      * @param maxReceiveEntry Maximum number of files that can be acquired at once
-     * @param startPosition Set the previously acquired token to continue. Set null if acquiring for the first time.
+     * @param startPosition   Set the previously acquired token to continue. Set null if acquiring for the first time.
      * @return List of specified number of media files
      */
     private ArrayList<ImageInfo> getListInternal(int maxReceiveEntry, int startPosition) {
@@ -315,13 +309,14 @@ public class HttpConnector {
 
     /**
      * Acquire thumbnail image
+     *
      * @param fileId File ID
      * @return Thumbnail (null is returned if acquisition fails)
      */
     public Bitmap getThumb(String fileId) {
         HttpURLConnection postConnection = null;
         try {
-            postConnection = (HttpURLConnection)new URL(fileId+"?type=thumb").openConnection();
+            postConnection = (HttpURLConnection) new URL(fileId + "?type=thumb").openConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -354,6 +349,7 @@ public class HttpConnector {
     /**
      * Take photo<p>
      * After shooting, the status is checked for each {@link HttpConnector#CHECK_STATUS_PERIOD_MS} and the listener notifies you of the status.
+     *
      * @param listener Post-shooting event listener
      * @return Shooting request results
      */
@@ -449,6 +445,7 @@ public class HttpConnector {
 
     /**
      * Check still image shooting status
+     *
      * @param commandId Command ID for shooting still images
      * @return ID of saved file (null is returned if the file is not saved)
      */
@@ -499,14 +496,15 @@ public class HttpConnector {
 
     /**
      * Acquire raw data of specified image
-     * @param fileId File ID
+     *
+     * @param fileId   File ID
      * @param listener Listener for receiving received data count
      * @return Image data
      */
     public ImageData getImage(String fileId, HttpDownloadListener listener) {
         HttpURLConnection postConnection = null;
         try {
-            postConnection = (HttpURLConnection)new URL(fileId).openConnection();
+            postConnection = (HttpURLConnection) new URL(fileId).openConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -552,6 +550,7 @@ public class HttpConnector {
 
     /**
      * Acquire live view stream
+     *
      * @return Stream for receiving data
      * @throws IOException
      */
@@ -611,8 +610,9 @@ public class HttpConnector {
 
     /**
      * Delete specified file
+     *
      * @param deletedFileId File ID
-     * @param listener Listener for receiving deletion results
+     * @param listener      Listener for receiving deletion results
      */
     public void deleteFile(String deletedFileId, HttpEventListener listener) {
 
@@ -701,6 +701,7 @@ public class HttpConnector {
 
     /**
      * Specify shooting size
+     *
      * @param imageSize Shooting size
      */
     public void setImageSize(ImageSize imageSize) {
@@ -764,6 +765,7 @@ public class HttpConnector {
 
     /**
      * Acquire currently set shooting size
+     *
      * @return Shooting size (null is returned if acquisition fails)
      */
     public ImageSize getImageSize() {
@@ -830,6 +832,7 @@ public class HttpConnector {
 
     /**
      * Set still image as shooting mode
+     *
      * @return Error message (null is returned if successful)
      */
     private String setImageCaptureMode() {
@@ -907,6 +910,7 @@ public class HttpConnector {
 
     /**
      * Acquire device status
+     *
      * @return Last saved file
      */
     private String getState() {
@@ -946,6 +950,7 @@ public class HttpConnector {
 
     /**
      * Check for updates to device status
+     *
      * @return true:Update available, false:No update available
      */
     private boolean isUpdate() {
@@ -999,6 +1004,7 @@ public class HttpConnector {
 
     /**
      * Generate connection destination URL
+     *
      * @param path Path
      * @return URL
      */
@@ -1013,8 +1019,9 @@ public class HttpConnector {
 
     /**
      * Generate HTTP connection
+     *
      * @param method Method
-     * @param path Path
+     * @param path   Path
      * @return HTTP Connection instance
      */
     private HttpURLConnection createHttpConnection(String method, String path) {
@@ -1025,6 +1032,7 @@ public class HttpConnector {
             connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoInput(true);
+            connection.setConnectTimeout(4000);
 
             if (method.equals("POST")) {
                 connection.setRequestMethod(method);
@@ -1042,6 +1050,7 @@ public class HttpConnector {
 
     /**
      * Convert input stream to string
+     *
      * @param is InputStream
      * @return String
      * @throws IOException IO error
