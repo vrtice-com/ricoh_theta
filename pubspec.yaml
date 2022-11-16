@@ -1,8 +1,8 @@
 name: ricoh_theta
 description: A powerful plugin for Ricoh Theta using the latest official SDK.
 version: 1.0.0
-homepage: https://github.com/istornz/ricoh_theta
-repository: https://github.com/istornz/ricoh_theta
+homepage: https://github.com/vrtice-com/ricoh_theta
+repository: https://github.com/vrtice-com/ricoh_theta
 
 environment:
   sdk: '>=2.17.3 <3.0.0'
