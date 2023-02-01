@@ -14,6 +14,7 @@ Use your **Ricoh Theta** device in your Flutter app very easily.
 - ℹ️ Fetch **device information**
 - 📁 Retrieve device **files** from storage
 - 🌆 **View** photo in high resolution
+- 🌍 Ensure connected to **Theta WiFi**
 
 ## 📖&nbsp; Installation
 
@@ -63,6 +64,7 @@ await _ricohThetaPlugin.setTargetIp("192.168.1.1");
 | listenCameraImages   | ```Stream<Uint8List>?```               | listen for live preview images coming from the device                                       |          |
 | listenDownloadProgress  | ```Stream<num>?```                  | listen for download progress of images                                                      |          |
 | adjustLiveViewFps    | ```Future```                           | adjust fraps per seconds for image preview                                                  |          |
+| isConnectedToTheta   | ```Future<bool>```                     | check if device is connected to a theta wifi network                                        |          |
 
 > ```adjustLiveViewFps``` method is used to not surcharge the device, you can set 0 to skip this feature.
 
