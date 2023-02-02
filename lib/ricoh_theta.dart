@@ -10,10 +10,11 @@ import 'package:wifi_iot/wifi_iot.dart';
 import 'ricoh_theta_platform_interface.dart';
 
 class RicohTheta {
-  Future<void> _forceWifi(Function function) async {
+  Future<dynamic> _forceWifi(Function function) async {
     await WiFiForIoTPlugin.forceWifiUsage(true);
-    await function();
+    final result = await function();
     await WiFiForIoTPlugin.forceWifiUsage(false);
+    return result;
   }
 
   Future<bool> isConnectedToTheta() async {
