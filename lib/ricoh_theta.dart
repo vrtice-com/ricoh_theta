@@ -21,30 +21,30 @@ class RicohTheta {
     if (ssid == null) {
       return false;
     }
-    
+
     return ssid.toLowerCase().contains("theta");
   }
 
   /// If no ip address is provided, the default ip "192.168.1.1" is selected.
   /// This is required to setup before any other method.
   Future setTargetIp(String? ipAddress) async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.setTargetIp(ipAddress);
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.setTargetIp(ipAddress),
+    );
   }
 
   /// Disconnect from the device
   Future disconnect() async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.disconnect();
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.disconnect(),
+    );
   }
 
   /// Start capture of live view
   Future startLiveView({int fps = 30}) async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.startLiveView(fps);
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.startLiveView(fps),
+    );
   }
 
   /// Remove an image from storage device.
@@ -68,23 +68,23 @@ class RicohTheta {
 
   /// Pause capture of live view
   Future pauseLiveView() async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.pauseLiveView();
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.pauseLiveView(),
+    );
   }
 
   /// Stop capture of live view
   Future stopLiveView() async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.stopLiveView();
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.stopLiveView(),
+    );
   }
 
   /// Resume capture of live view
   Future resumeLiveView() async {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.resumeLiveView();
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.resumeLiveView(),
+    );
   }
 
   /// Get battery level from device
@@ -117,9 +117,9 @@ class RicohTheta {
   /// Update device session.
   /// Can be used to keep a session alive.
   Future update() {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.update();
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.update(),
+    );
   }
 
   /// Returns information about the images stored on the device.
@@ -159,8 +159,8 @@ class RicohTheta {
   /// [...]
   /// - 0 signifies unlimited frames
   Future adjustLiveViewFps(int fps) {
-    return _forceWifi(() async {
-      return RicohThetaPlatform.instance.adjustLiveViewFps(fps);
-    });
+    return _forceWifi(
+      () => RicohThetaPlatform.instance.adjustLiveViewFps(fps),
+    );
   }
 }
