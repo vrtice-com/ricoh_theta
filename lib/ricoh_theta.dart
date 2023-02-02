@@ -11,6 +11,11 @@ import 'ricoh_theta_platform_interface.dart';
 
 class RicohTheta {
   Future<dynamic> _forceWifi(Function function) async {
+    final isConnectedToWifi = await WiFiForIoTPlugin.isConnected();
+    if (!isConnectedToWifi) {
+      throw Exception('not connected to wifi device');
+    }
+
     await WiFiForIoTPlugin.forceWifiUsage(true);
     final result = await function();
     await WiFiForIoTPlugin.forceWifiUsage(false);
@@ -29,9 +34,7 @@ class RicohTheta {
   /// If no ip address is provided, the default ip "192.168.1.1" is selected.
   /// This is required to setup before any other method.
   Future setTargetIp(String? ipAddress) async {
-    return _forceWifi(
-      () => RicohThetaPlatform.instance.setTargetIp(ipAddress),
-    );
+    return RicohThetaPlatform.instance.setTargetIp(ipAddress);
   }
 
   /// Disconnect from the device
