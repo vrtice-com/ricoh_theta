@@ -17,9 +17,7 @@ class RicohTheta {
     }
 
     await WiFiForIoTPlugin.forceWifiUsage(true);
-    final result = await function();
-    await WiFiForIoTPlugin.forceWifiUsage(false);
-    return result;
+    return await function();
   }
 
   Future<bool> isConnectedToTheta() async {
@@ -39,9 +37,10 @@ class RicohTheta {
 
   /// Disconnect from the device
   Future disconnect() async {
-    return _forceWifi(
+    await _forceWifi(
       () => RicohThetaPlatform.instance.disconnect(),
     );
+    await WiFiForIoTPlugin.forceWifiUsage(false);
   }
 
   /// Start capture of live view
