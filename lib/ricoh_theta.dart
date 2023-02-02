@@ -29,21 +29,21 @@ class RicohTheta {
   /// This is required to setup before any other method.
   Future setTargetIp(String? ipAddress) async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.setTargetIp(ipAddress);
+      return RicohThetaPlatform.instance.setTargetIp(ipAddress);
     });
   }
 
   /// Disconnect from the device
   Future disconnect() async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.disconnect();
+      return RicohThetaPlatform.instance.disconnect();
     });
   }
 
   /// Start capture of live view
   Future startLiveView({int fps = 30}) async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.startLiveView(fps);
+      return RicohThetaPlatform.instance.startLiveView(fps);
     });
   }
 
@@ -69,21 +69,21 @@ class RicohTheta {
   /// Pause capture of live view
   Future pauseLiveView() async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.pauseLiveView();
+      return RicohThetaPlatform.instance.pauseLiveView();
     });
   }
 
   /// Stop capture of live view
   Future stopLiveView() async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.stopLiveView();
+      return RicohThetaPlatform.instance.stopLiveView();
     });
   }
 
   /// Resume capture of live view
   Future resumeLiveView() async {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.resumeLiveView();
+      return RicohThetaPlatform.instance.resumeLiveView();
     });
   }
 
@@ -118,7 +118,7 @@ class RicohTheta {
   /// Can be used to keep a session alive.
   Future update() {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.update();
+      return RicohThetaPlatform.instance.update();
     });
   }
 
@@ -160,7 +160,7 @@ class RicohTheta {
   /// - 0 signifies unlimited frames
   Future adjustLiveViewFps(int fps) {
     return _forceWifi(() async {
-      await RicohThetaPlatform.instance.adjustLiveViewFps(fps);
+      return RicohThetaPlatform.instance.adjustLiveViewFps(fps);
     });
   }
 }
