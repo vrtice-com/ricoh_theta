@@ -26,8 +26,10 @@ class ImageInfoes {
       imagePixWidth: map['imagePixWidth'],
       imagePixHeight: map['imagePixHeight'],
       fileName: map['fileName'],
-      captureDate: map['captureDate'] != null ? DateTime.fromMillisecondsSinceEpoch(
-          (map['captureDate'] as double).toInt()) : null,
+      captureDate: map['captureDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              (map['captureDate'] as double).toInt())
+          : null,
       fileId: map['fileId'],
     );
   }

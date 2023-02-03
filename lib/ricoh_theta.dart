@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ricoh_theta/models/device_info.dart';
@@ -11,6 +12,12 @@ import 'ricoh_theta_platform_interface.dart';
 
 class RicohTheta {
   Future<dynamic> _forceWifi(Function function) async {
+    // on iOS, we don't need to force wifi usage
+    if (Platform.isIOS) {
+      return function();
+    }
+
+    // on Android, we need to force wifi usage
     final isConnectedToWifi = await WiFiForIoTPlugin.isConnected();
     if (!isConnectedToWifi) {
       throw Exception('not connected to wifi device');
@@ -40,7 +47,9 @@ class RicohTheta {
     await _forceWifi(
       () => RicohThetaPlatform.instance.disconnect(),
     );
-    await WiFiForIoTPlugin.forceWifiUsage(false);
+    if (Platform.isAndroid) {
+      await WiFiForIoTPlugin.forceWifiUsage(false);
+    }
   }
 
   /// Start capture of live view

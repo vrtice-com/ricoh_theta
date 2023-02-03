@@ -34,18 +34,18 @@ class _ConnectPageState extends State<ConnectPage> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                if (_formKey.currentState!.validate()) {
-                  await _ricohThetaPlugin
-                      .setTargetIp(_ipAddressTextController.text);
-                  await _ricohThetaPlugin.getDeviceInfo().then((value) {
-                    Navigator.pushReplacementNamed(context, '/home');
-                  }).catchError((error) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Impossible to connect to the camera'),
-                    ));
-                  });
-                }
-                } catch(e) {
+                  if (_formKey.currentState!.validate()) {
+                    await _ricohThetaPlugin
+                        .setTargetIp(_ipAddressTextController.text);
+                    await _ricohThetaPlugin.getDeviceInfo().then((value) {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    }).catchError((error) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Impossible to connect to the camera'),
+                      ));
+                    });
+                  }
+                } catch (e) {
                   print(e.toString());
                 }
               },
