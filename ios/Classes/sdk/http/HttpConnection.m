@@ -150,8 +150,9 @@
   NSURLSessionDataTask* task =
   [self->_session dataTaskWithRequest:request
                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-    HttpDeviceInfo* info = [[HttpDeviceInfo alloc] init];
-    if (!error) {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+    if (!error && httpResponse != nil && ([httpResponse statusCode] >= 200 && [httpResponse statusCode] < 300)) {
+      HttpDeviceInfo* info = [[HttpDeviceInfo alloc] init];
       NSArray *array = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
       info.model = [array valueForKeyPath:@"model"];
       info.firmware_version = [array valueForKeyPath:@"firmwareVersion"];

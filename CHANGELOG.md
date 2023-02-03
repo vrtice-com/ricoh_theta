@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Fix iOS crash when endpoint not exist.
+
 ## 1.1.1
 
 * Disable force WiFi connection on iOS (not necessary).
