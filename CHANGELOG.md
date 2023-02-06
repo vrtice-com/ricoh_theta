@@ -1,3 +1,7 @@
+## 1.1.3
+
+* Fix Android return after each result.
+
 ## 1.1.2
 
 * Fix iOS crash when endpoint not exist.

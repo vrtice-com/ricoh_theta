@@ -48,8 +48,10 @@ public class StorageInfoTask extends AsyncTask<Void, Void, Map<String, Object>> 
     protected void onPostExecute(final Map<String, Object> storageInfo) {
         if (storageInfo == null) {
             result.error("STORAGE_INFO_ERROR", "unable to retrieve storage information", "");
+            return;
         } else {
             result.success(storageInfo);
+            return;
         }
     }
 }

@@ -128,6 +128,7 @@ public class LoadPhotoTask extends AsyncTask<Void, Object, ImageData> {
                 image.put("size", file.length());
 
                 result.success(image);
+                return;
             }
         }
     }

@@ -181,12 +181,14 @@ public class PictureController implements EventChannel.StreamHandler {
                 resultData.put("fileName", fileName);
                 resultData.put("fileId", latestCapturedFileId);
                 result.success(resultData);
+                return;
             }
         }
 
         @Override
         public void onError(String errorMessage) {
             result.error("PICTURE_TAKE_ERROR", errorMessage, "");
+            return;
         }
     }
 

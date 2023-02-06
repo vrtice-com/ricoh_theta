@@ -54,6 +54,7 @@ public class StorageController implements EventChannel.StreamHandler {
         }
 
         result.success(images);
+        return;
     }
 
     @Override
@@ -82,11 +83,13 @@ public class StorageController implements EventChannel.StreamHandler {
         @Override
         public void onCompleted() {
             result.success(null);
+            return;
         }
 
         @Override
         public void onError(String errorMessage) {
             result.error("DELETE_FAILED", "error when deleting image", errorMessage.toString());
+            return;
         }
     }
 

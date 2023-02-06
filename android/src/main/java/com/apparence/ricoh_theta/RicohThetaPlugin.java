@@ -87,6 +87,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
       _handleAdjustLiveViewFps(call, result);
     } else {
       result.notImplemented();
+      return;
     }
   }
 
@@ -100,6 +101,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (fileId == null) {
       result.error("MISSING_FILE_ID", "file id need to be specified", "");
+      return;
     }
 
     storageController.removeImageWithFileId(fileId);
@@ -127,6 +129,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (fps == null) {
       result.error("MISSING_FPS", "fps need to be specified", "");
+      return;
     } else {
       pictureController.setCurrentFps(fps);
       // FIXME: Improve this to not restart the preview, this is too heavy !
@@ -159,6 +162,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (fps == null) {
       result.error("MISSING_FPS", "fps need to be specified", "");
+      return;
     } else {
       pictureController.startLiveView(fps);
     }
@@ -190,6 +194,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
 
     if (ipAddress == null) {
       result.error("MISSING_IP_ADDRESS", "ip address need to be specified", "");
+      return;
     }
 
     camera = new HttpConnector(ipAddress);
@@ -198,6 +203,7 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
     storageController.setCamera(camera);
 
     result.success(null);
+    return;
   }
 
   private void _handleDeviceInfo(MethodCall call, Result result) {

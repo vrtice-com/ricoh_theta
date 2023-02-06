@@ -48,8 +48,10 @@ public class DeviceInfoTask extends AsyncTask<Void, Void, Map<String, String>> {
     protected void onPostExecute(final Map<String, String> deviceInfo) {
         if (deviceInfo == null) {
             result.error("INFO_ERROR", "unable to retrieve device info", "");
+            return;
         } else {
             result.success(deviceInfo);
+            return;
         }
     }
 }

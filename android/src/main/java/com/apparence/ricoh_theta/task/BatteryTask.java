@@ -38,8 +38,10 @@ public class BatteryTask extends AsyncTask<Void, Void, Double> {
     protected void onPostExecute(final Double batteryLevel) {
         if (batteryLevel == null) {
             result.error("BATTERY_ERROR", "unable to retrieve battery level", "");
+            return;
         } else {
             result.success(batteryLevel);
+            return;
         }
     }
 }
