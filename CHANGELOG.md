@@ -1,3 +1,7 @@
+## 1.1.4
+
+* Fix Android crash when result was not the correct one.
+
 ## 1.1.3
 
 * Fix Android return after each result.

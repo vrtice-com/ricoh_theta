@@ -173,10 +173,10 @@ public class RicohThetaPlugin implements FlutterPlugin, MethodCallHandler {
     // TODO
   }
 
-  private void _handleTakePicture(MethodCall call, Result result) {
+  private void _handleTakePicture(MethodCall call, MethodChannel.Result result) {
     final String path = call.argument("path");
 
-    pictureController.takePicture(path);
+    pictureController.takePicture(path, result);
   }
 
   private void _handleStorageInfo(MethodCall call, Result result) {

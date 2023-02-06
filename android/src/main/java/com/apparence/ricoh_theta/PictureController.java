@@ -61,8 +61,8 @@ public class PictureController implements EventChannel.StreamHandler {
         startLiveView(currentFps);
     }
 
-    public void takePicture(final String path) {
-        CaptureListener captureListener = new CaptureListener(path);
+    public void takePicture(final String path, final MethodChannel.Result result) {
+        CaptureListener captureListener = new CaptureListener(path, result);
 
         camera.takePicture(captureListener);
     }
@@ -141,10 +141,12 @@ public class PictureController implements EventChannel.StreamHandler {
 
     private class CaptureListener implements HttpEventListener {
         private final String path;
+        private final MethodChannel.Result captureResult;
         private String latestCapturedFileId;
 
-        CaptureListener(final String path) {
+        CaptureListener(final String path, final MethodChannel.Result captureResult) {
             this.path = path;
+            this.captureResult = captureResult;
         }
 
         @Override
@@ -180,14 +182,14 @@ public class PictureController implements EventChannel.StreamHandler {
                 Map<String, String> resultData = new HashMap<>();
                 resultData.put("fileName", fileName);
                 resultData.put("fileId", latestCapturedFileId);
-                result.success(resultData);
+                captureResult.success(resultData);
                 return;
             }
         }
 
         @Override
         public void onError(String errorMessage) {
-            result.error("PICTURE_TAKE_ERROR", errorMessage, "");
+            captureResult.error("PICTURE_TAKE_ERROR", errorMessage, "");
             return;
         }
     }
